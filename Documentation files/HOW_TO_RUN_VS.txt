@@ -1,0 +1,11 @@
+HOW TO RUN
+==========
+
+1) Double-click Clinic.sln
+2) Press Ctrl+F5
+
+It already uses input1.txt.
+To try another file: Project Properties -> Debugging -> Command Arguments
+  change to input2.txt or input3.txt
+
+If VS asks to retarget, click OK.
