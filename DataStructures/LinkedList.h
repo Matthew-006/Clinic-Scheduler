@@ -1,7 +1,7 @@
 #ifndef LINKEDLIST_H
 #define LINKEDLIST_H
 
-// Mohamed Ayman - Linked List (Data Structures layer)
+// Mohamed Ayman joined - Linked List (Data Structures layer)
 // used for done patients and all patients
 
 template <class T>
