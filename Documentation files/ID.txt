@@ -1,0 +1,19 @@
+Team Number: 3
+Course: CIE 205 Summer 2026
+Project: Clinic Patient Scheduling - Checkpoint 1
+
+1) Kerolos Sameh
+   ID: 202500408
+   Email: 202500408@zewailcity.edu.eg
+
+2) Hassan Yehia (Team Leader)
+   ID: 202500817
+   Email: 202500817@zewailcity.edu.eg
+
+3) Matthew Ayman
+   ID: 202500900
+   Email: 202500900@zewailcity.edu.eg
+
+4) Mohamed Ayman
+   ID: 202400096
+   Email: 202400096@zewailcity.edu.eg
