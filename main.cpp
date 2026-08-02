@@ -1,5 +1,3 @@
-// Main -> FileManager -> SimulationEngine -> Scheduler -> Data Structures -> Entities
-
 #include <iostream>
 #include <string>
 #include "FileManager/FileManager.h"
@@ -15,10 +13,10 @@ int main() {
     FileManager fm;
 
     if (!fm.load(fileName, engine)) {
-        cout << "Load failed." << endl;
+        cout << "Not found" << endl;
         return 1;
     }
 
-    cout << "File loaded." << endl;
+    cout << "File loaded" << endl;
     return 0;
 }
