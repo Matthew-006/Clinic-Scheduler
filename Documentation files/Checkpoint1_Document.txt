@@ -10,41 +10,54 @@ Layered architecture:
        -> Entities
 
 
-Folder layout
--------------
-main.cpp
-FileManager/          FileManager.h, FileManager.cpp
-SimulationEngine/     SimulationEngine.h, SimulationEngine.cpp
-Scheduler/            Scheduler.h
-DataStructures/       LinkedQueue.h, PriorityQueue.h, LinkedList.h
-Entities/             Patient.h, Doctor.h, Branch.h, Event.h
-input1.txt, input2.txt, input3.txt   (sample inputs)
+Data Structures chosen for each list
+------------------------------------
 
+1) Events list -> LinkedQueue (Hassan)
+   Why: events are already sorted by time in the input file.
+         We only need first-in first-out (enqueue / dequeue).
+   Main operations: enqueue O(1), dequeue O(1)
 
-Data Structures
----------------
-1) LinkedQueue (Hassan)
-   Events + waiting emergency patients
-   Why: FIFO. enqueue/dequeue O(1), removeById O(n)
+2) Waiting Emergency patients -> LinkedQueue (Hassan)
+   Why: emergency patients are served in check-in order (FIFO).
+   Main operations: enqueue O(1), dequeue O(1)
+   removeById O(n) is used if a patient leaves.
 
-2) PriorityQueue - sorted linked list (Matthew)
-   Waiting regular patients
+3) Waiting Regular patients -> PriorityQueue (Matthew)
+   Why: regular patients are not FIFO. Order depends on priority.
    Priority = (3 * checkInTime) + numTests (smaller first)
-   Check-in time has weight 3 and test count has weight 1. This gives patients
-   who arrived earlier a stronger preference while still favoring shorter visits.
-   If priorities are equal, the lower patient ID is served first.
-   insert O(n), extractBest O(1), removeById O(n)
+   Check-in time has weight 3 and tests have weight 1, so earlier
+   patients are preferred, and fewer tests also helps.
+   Main operations: enqueue O(n), dequeue O(1)
 
-3) Array inside Branch / SimulationEngine (Kerolos)
-   Doctors and branches
-   Why: fixed count after load, access O(1)
+4) Branches and Doctors -> Array (Kerolos)
+   Why: their counts are fixed after reading the file.
+         No insert/delete during simulation, only access by index.
+   Main operation: access O(1)
 
-4) LinkedList (Mohamed)
-   Done patients + all patients registry
-   insertEnd O(1), findById O(n)
+5) Done patients + all patients -> LinkedList (Mohamed)
+   Why: done patients are only added at the end.
+         allPatients is used to find a patient by id when reading
+         Leave or Urgent events from the input file.
+   Main operations: insertEnd O(1), findById O(n)
 
-In-visit: Doctor has Patient* currentPatient (no separate list).
+In-visit patients:
+   No separate list. Each Doctor stores Patient* currentPatient
+   because one doctor sees only one patient at a time.
 
 
-Checkpoint 1: classes + DS + file load
-Checkpoint 2: serve patients + output file
+File loading (Mohamed)
+----------------------
+FileManager reads the input file in order:
+  B SU WU PS PJ
+  doctors count per branch
+  doctor data
+  AutoE
+  M events (C / L / U)
+
+Each patient is created once with new, then shared by pointer
+(no copying the same patient).
+
+
+Checkpoint 1: classes + data structures + file load
+Checkpoint 2: serving patients + output file

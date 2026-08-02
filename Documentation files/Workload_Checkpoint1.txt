@@ -3,7 +3,6 @@ Who did what - Checkpoint 1 - Team (3)
 Kerolos Sameh (202500408)
 - Entities: Patient, Doctor, Branch, Event
 - doctors/branches arrays
-- FileManager (read input)
 - SimulationEngine
 - main.cpp
 
@@ -17,4 +16,5 @@ Matthew Ayman (202500900)
 
 Mohamed Ayman (202400096)
 - DataStructures/LinkedList.h
+- FileManager (read input file)
 - Checkpoint1_Document.txt

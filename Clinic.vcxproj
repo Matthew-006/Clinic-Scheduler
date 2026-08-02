@@ -30,7 +30,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="FileManager\FileManager.cpp" />
     <ClCompile Include="SimulationEngine\SimulationEngine.cpp" />
   </ItemGroup>
   <ItemGroup>

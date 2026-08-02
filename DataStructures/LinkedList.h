@@ -1,19 +1,14 @@
 #ifndef LINKEDLIST_H
 #define LINKEDLIST_H
 
-// Mohamed Ayman - Linked List (Data Structures layer)
-// used for done patients and all patients
+// Mohamed Ayman - Linked List, used for done patients and all patients
 
 template <class T>
 class LinkedList {
 private:
     struct Node {
-        T item;
+        T data;
         Node* next;
-        Node(T val) {
-            item = val;
-            next = 0;
-        }
     };
     Node* head;
     Node* tail;
@@ -33,37 +28,38 @@ public:
             cur = cur->next;
             delete temp;
         }
-        head = 0;
-        tail = 0;
-        count = 0;
     }
 
     bool isEmpty() {
         return head == 0;
     }
 
-    int size() {
+    int getCount() {
         return count;
     }
 
-    void insertEnd(T val) {
-        Node* n = new Node(val);
+    void insertEnd(T value) {
+        Node* temp = new Node();
+        temp->data = value;
+        temp->next = 0;
+
         if (head == 0) {
-            head = n;
-            tail = n;
+            head = temp;
+            tail = temp;
         }
         else {
-            tail->next = n;
-            tail = n;
+            tail->next = temp;
+            tail = temp;
         }
         count++;
     }
 
+    // used for Leave and Urgent events
     T findById(int id) {
         Node* cur = head;
         while (cur != 0) {
-            if (cur->item != 0 && cur->item->id == id)
-                return cur->item;
+            if (cur->data != 0 && cur->data->id == id)
+                return cur->data;
             cur = cur->next;
         }
         return 0;
