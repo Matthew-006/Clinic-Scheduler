@@ -42,9 +42,8 @@ public:
         autoEscalated = false;
     }
 
-    // smaller priority = served sooner
     int getPriority() {
-        return checkInTime + numTests;
+        return (3 * checkInTime) + numTests;
     }
 };
 

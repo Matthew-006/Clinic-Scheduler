@@ -13,7 +13,7 @@ Hassan Yehia (202500817)
 
 Matthew Ayman (202500900)
 - DataStructures/PriorityQueue.h
-- priority = checkInTime + numTests
+- priority = (3 * checkInTime) + numTests
 
 Mohamed Ayman (202400096)
 - DataStructures/LinkedList.h

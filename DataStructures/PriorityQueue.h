@@ -1,10 +1,6 @@
 #ifndef PRIORITYQUEUE_H
 #define PRIORITYQUEUE_H
 
-// Matthew Ayman - Priority Queue (Data Structures layer)
-// sorted linked list for regular waiting patients
-// priority = checkInTime + numTests (smaller first)
-
 template <class T>
 class PriorityQueue {
 private:
@@ -19,7 +15,7 @@ private:
     Node* head;
     int count;
 
-    bool better(T a, T b) {
+    bool better(T a, T b) const {
         if (a->getPriority() != b->getPriority())
             return a->getPriority() < b->getPriority();
         return a->id < b->id;
@@ -36,15 +32,15 @@ public:
             dequeue();
     }
 
-    bool isEmpty() {
+    bool isEmpty() const {
         return head == 0;
     }
 
-    int size() {
+    int size() const {
         return count;
     }
 
-    void enqueue(T val) {
+    void insert(T val) {
         Node* n = new Node(val);
         if (head == 0 || better(val, head->item)) {
             n->next = head;
@@ -60,7 +56,10 @@ public:
         count++;
     }
 
-    T dequeue() {
+    T extractBest() {
+        if (head == 0)
+            return T();
+
         Node* temp = head;
         T val = head->item;
         head = head->next;
@@ -69,11 +68,20 @@ public:
         return val;
     }
 
-    T peek() {
+    void enqueue(T val) {
+        insert(val);
+    }
+
+    T dequeue() {
+        return extractBest();
+    }
+
+    T peek() const {
+        if (head == 0)
+            return T();
         return head->item;
     }
 
-    // needed for Leave / Escalate
     bool removeById(int id, T& val) {
         Node* prev = 0;
         Node* cur = head;

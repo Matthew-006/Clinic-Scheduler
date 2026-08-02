@@ -29,8 +29,11 @@ Data Structures
 
 2) PriorityQueue - sorted linked list (Matthew)
    Waiting regular patients
-   Priority = checkInTime + numTests (smaller first)
-   enqueue O(n), dequeue O(1)
+   Priority = (3 * checkInTime) + numTests (smaller first)
+   Check-in time has weight 3 and test count has weight 1. This gives patients
+   who arrived earlier a stronger preference while still favoring shorter visits.
+   If priorities are equal, the lower patient ID is served first.
+   insert O(n), extractBest O(1), removeById O(n)
 
 3) Array inside Branch / SimulationEngine (Kerolos)
    Doctors and branches
