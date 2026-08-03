@@ -1,7 +1,6 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-// Scheduler layer - empty in Checkpoint 1
 
 #include "../Entities/Branch.h"
 #include "../Entities/Patient.h"
@@ -17,21 +16,17 @@ public:
         return p->getPriority();
     }
 
-    // Checkpoint 2
     Doctor* findEmergencyDoctor(Branch& b, int currentTime) {
         return 0;
     }
 
-    // Checkpoint 2
     Doctor* findRegularDoctor(Branch& b, int currentTime) {
         return 0;
     }
 
-    // Checkpoint 2
     void assignPatient(Patient* p, Doctor* d, int currentTime) {
     }
 
-    // Checkpoint 2
     void serveBranch(Branch& b, int currentTime) {
     }
 };

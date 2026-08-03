@@ -1,7 +1,6 @@
 #ifndef SIMULATIONENGINE_H
 #define SIMULATIONENGINE_H
 
-// SimulationEngine layer
 
 #include "../Entities/Branch.h"
 #include "../Entities/Event.h"
@@ -40,7 +39,7 @@ public:
     Branch* getBranchByNum(int num);
     int allocateDoctorId();
 
-    void run();   // Checkpoint 2
+    void run();
 };
 
 #endif

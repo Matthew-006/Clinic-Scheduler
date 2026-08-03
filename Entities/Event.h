@@ -1,13 +1,12 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-// Kerolos Sameh - Event (Entities layer)
 
 class Patient;
 
 class Event {
 public:
-    char type;      // 'C', 'L', or 'U'
+    char type;
     int time;
     int patientId;
     Patient* patient;

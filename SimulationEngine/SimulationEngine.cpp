@@ -47,6 +47,4 @@ int SimulationEngine::allocateDoctorId() {
     return nextDoctorId++;
 }
 
-void SimulationEngine::run() {
-    // Checkpoint 2
-}
+void SimulationEngine::run() {}

@@ -1,7 +1,6 @@
 #ifndef DOCTOR_H
 #define DOCTOR_H
 
-// Kerolos Sameh - Doctor (Entities layer)
 
 class Patient;
 
@@ -9,14 +8,14 @@ class Doctor {
 public:
     int id;
     int branch;
-    char spec;          // 'S' or 'J'
+    char spec;
     int shiftStart;
     int breakAfter;
     int breakDuration;
     int patientsSinceBreak;
     int busyUntil;
     int breakUntil;
-    int status;         // 0 not started, 1 free, 2 busy, 3 on break
+    int status;
     Patient* currentPatient;
 
     Doctor() {

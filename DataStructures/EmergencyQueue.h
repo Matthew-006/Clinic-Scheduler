@@ -8,7 +8,6 @@ class EmergencyQueue : public LinkedQueue<T>
 {
 public:
 
-    // Insert according to check-in time
     void insertByCheckInTime(T val)
     {
         typename LinkedQueue<T>::Node* n =
@@ -49,7 +48,6 @@ public:
         this->count++;
     }
 
-    // Remove patient by ID (needed for Leave event)
     bool removeById(int id, T& val)
     {
         typename LinkedQueue<T>::Node* prev = nullptr;

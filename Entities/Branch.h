@@ -1,7 +1,6 @@
 #ifndef BRANCH_H
 #define BRANCH_H
 
-// Kerolos Sameh - Branch (Entities layer)
 
 #include "Doctor.h"
 #include "Patient.h"
