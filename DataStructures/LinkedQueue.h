@@ -1,12 +1,11 @@
 #ifndef LINKEDQUEUE_H
 #define LINKEDQUEUE_H
 
-// Hassan Yehia - Linked Queue (Data Structures layer)
-// used for events and emergency waiting patients
+
 
 template <class T>
 class LinkedQueue {
-private:
+protected:
     struct Node {
         T item;
         Node* next;
@@ -67,28 +66,7 @@ public:
         return front->item;
     }
 
-    // needed for Leave events
-    bool removeById(int id, T& val) {
-        Node* prev = 0;
-        Node* cur = front;
-        while (cur != 0) {
-            if (cur->item != 0 && cur->item->id == id) {
-                val = cur->item;
-                if (prev == 0)
-                    front = cur->next;
-                else
-                    prev->next = cur->next;
-                if (cur == rear)
-                    rear = prev;
-                delete cur;
-                count--;
-                return true;
-            }
-            prev = cur;
-            cur = cur->next;
-        }
-        return false;
-    }
+   
 };
 
 #endif

@@ -41,6 +41,7 @@
     <ClInclude Include="Entities\Branch.h" />
     <ClInclude Include="Entities\Event.h" />
     <ClInclude Include="DataStructures\LinkedQueue.h" />
+    <ClInclude Include="DataStructures\EmergencyQueue.h" />
     <ClInclude Include="DataStructures\PriorityQueue.h" />
     <ClInclude Include="DataStructures\LinkedList.h" />
   </ItemGroup>
