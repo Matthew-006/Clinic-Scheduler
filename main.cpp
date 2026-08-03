@@ -14,9 +14,10 @@ int main() {
 
     if (!fm.load(fileName, engine)) {
         cout << "Not found" << endl;
-        return 1;
+    }
+    else {
+        cout << "File loaded" << endl;
     }
 
-    cout << "File loaded" << endl;
     return 0;
 }
