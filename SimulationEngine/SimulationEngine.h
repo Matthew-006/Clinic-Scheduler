@@ -40,6 +40,13 @@ public:
     int allocateDoctorId();
 
     void run();
+
+private:
+    void processEventsAtCurrentTime();
+    void processEvent(Event* e);
+    void processCheckIn(Event* e);
+    void processUrgent(Event* e);
+    void processLeave(Event* e);
 };
 
 #endif

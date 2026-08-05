@@ -4,7 +4,7 @@
 
 #include "Doctor.h"
 #include "Patient.h"
-#include "../DataStructures/LinkedQueue.h"
+#include "../DataStructures/EmergencyQueue.h"
 #include "../DataStructures/PriorityQueue.h"
 
 const int MAX_DOCTORS = 50;
@@ -14,7 +14,7 @@ public:
     int branchNum;
     Doctor doctors[MAX_DOCTORS];
     int doctorCount;
-    LinkedQueue<Patient*> emergencyWaiting;
+    EmergencyQueue<Patient*> emergencyWaiting;
     PriorityQueue<Patient*> regularWaiting;
 
     Branch() {
