@@ -4,6 +4,8 @@
 
 #include <string>
 #include <fstream>
+#include <iostream>
+#include <iomanip>
 
 #include "../SimulationEngine/SimulationEngine.h"
 #include "../Entities/Patient.h"
@@ -89,7 +91,7 @@ public:
         return true;
     }
 
-    void writeOutput(SimulationEngine& engine, string outName)
+    bool writeOutput(SimulationEngine& engine, string outName)
     {
         Patient* arr[1000];
         int n;
@@ -111,11 +113,16 @@ public:
         }
 
         ofstream out(outName);
+        if (!out)
+            return false;
+
+        out << "FT  ID  CT  WT  VT" << endl;
 
         int totalWait = 0, totalVisit = 0;
         for (int i = 0; i < n; i++) {
             Patient* p = arr[i];
-            out << p->finishTime << " " << p->id << " " << p->checkInTime << " " << p->waitingTime << " " << p->visitTime << endl;
+            out << p->finishTime << "   " << p->id << "   " << p->checkInTime
+                << "   " << p->waitingTime << "   " << p->visitTime << endl;
             totalWait = totalWait + p->waitingTime;
             totalVisit = totalVisit + p->visitTime;
         }
@@ -138,11 +145,22 @@ public:
                 << " [Senior: " << sen << ", Junior: " << jun << "]" << endl;
         }
 
-        if (n > 0)
-            out << "Avg Wait = " << (double)totalWait / n << ", Avg Visit = " << (double)totalVisit / n << endl;
+        if (n > 0) {
+            out << fixed << setprecision(1);
+            out << "Avg Wait = " << (double)totalWait / n
+                << ", Avg Visit = " << (double)totalVisit / n << endl;
+        }
 
-        if (engine.totalRegular > 0)
-            out << "Auto-escalated: " << (100.0 * engine.totalAutoEscalated / engine.totalRegular) << "%" << endl;
+        out << "Auto-escalated: " << engine.totalAutoEscalated << endl;
+        out.close();
+
+        ifstream in(outName);
+        if (in) {
+            cout << in.rdbuf();
+            in.close();
+        }
+
+        return true;
     }
 };
 #endif
