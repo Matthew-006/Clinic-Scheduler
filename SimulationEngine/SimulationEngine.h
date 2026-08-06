@@ -30,6 +30,7 @@ public:
     int nextDoctorId;
     int totalEmergency;
     int totalRegular;
+    int totalAutoEscalated;
 
     SimulationEngine();
     ~SimulationEngine();
@@ -47,6 +48,10 @@ private:
     void processCheckIn(Event* e);
     void processUrgent(Event* e);
     void processLeave(Event* e);
+    void autoEscalateWaitingPatients();
+    void finishVisits();
+    void serveBranches();
+    bool hasActivePatients();
 };
 
 #endif
