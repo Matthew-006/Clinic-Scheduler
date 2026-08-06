@@ -89,7 +89,7 @@ void SimulationEngine::processCheckIn(Event* e) {
     if (e->patient->type == 'E')
         b->emergencyWaiting.enqueue(e->patient);
     else if (e->patient->type == 'R')
-        b->regularWaiting.enqueue(e->patient);
+        b->regularWaiting.insert(e->patient);
     e->patient->status = 1;
 }
 
@@ -103,6 +103,7 @@ void SimulationEngine::processUrgent(Event* e) {
 
     Patient* patient = 0;
     if (b->regularWaiting.removeById(e->patientId, patient)) {
+        patient->type = 'E';
         b->emergencyWaiting.insertByCheckInTime(patient);
     }
 }
@@ -129,16 +130,17 @@ void SimulationEngine::autoEscalateWaitingPatients() {
         Branch& b = branches[i];
         int waitingCount = b.regularWaiting.size();
         for (int checked = 0; checked < waitingCount; checked++) {
-            Patient* p = b.regularWaiting.dequeue();
+            Patient* p = b.regularWaiting.extractBest();
             if (p == 0)
                 break;
             if (currentTime - p->checkInTime >= autoE) {
                 p->autoEscalated = true;
+                p->type = 'E';
                 b.emergencyWaiting.insertByCheckInTime(p);
                 totalAutoEscalated++;
             }
             else {
-                b.regularWaiting.enqueue(p);
+                b.regularWaiting.insert(p);
             }
         }
     }
