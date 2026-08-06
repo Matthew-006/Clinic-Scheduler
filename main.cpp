@@ -17,6 +17,9 @@ int main() {
     }
     else {
         cout << "File loaded" << endl;
+        engine.run();
+        fm.writeOutput(engine, "output.txt");
+        cout << "Output written to output.txt" << endl;
     }
 
     return 0;
