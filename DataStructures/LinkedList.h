@@ -17,37 +17,37 @@ private:
     int count;
 
 public:
-    LinkedList()
+    LinkedList() 
     {
         head = nullptr;
         tail = nullptr;
         count = 0;
     }
 
-    ~LinkedList()
+    ~LinkedList() 
     {
-        Node* cur = head;
-        while (cur != nullptr)
+        Node*cur = head;
+        while (cur!= nullptr)
         {
-            Node* temp = cur;
-            cur = cur->next;
+            Node*temp = cur;
+            cur=cur->next;
             delete temp;
         }
     }
 
-    bool isEmpty()
+    bool isEmpty() 
     {
         return head == nullptr;
     }
 
-    int getCount()
+    int getCount() 
     {
         return count;
     }
 
-    void insertEnd(T value)
+    void insertEnd(T value) 
     {
-        Node* temp = new Node();
+        Node*temp = new Node();
         temp->data = value;
         temp->next = nullptr;
 
@@ -63,11 +63,11 @@ public:
     }
 
     T findById(int id) {
-        Node* cur = head;
-        while (cur != nullptr) {
-            if (cur->data != nullptr && cur->data->id == id)
+        Node*cur = head;
+        while (cur!= nullptr) {
+            if (cur->data!= nullptr && cur->data->id ==id)
                 return cur->data;
-            cur = cur->next;
+            cur=cur->next;
         }
         return nullptr;
     }
