@@ -648,7 +648,7 @@ void createInterface(HWND window) {
         setFont(*fields[i], bodyFont);
     }
 
-    controls.transferCheck = CreateWindowA("BUTTON", "Enable branch transfer (Bonus)",
+    controls.transferCheck = CreateWindowA("BUTTON", "Enable branch transfer",
         WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 24, 470, 260, 22, window, (HMENU)(INT_PTR)ID_TRANSFER, 0, 0);
     setFont(controls.transferCheck, bodyFont);
 
