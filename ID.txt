@@ -16,23 +16,3 @@ Team (3)
 4) Mohamed Ayman
    ID: 202400096
    Email: s-mohamed-abdalla@zewailcity.edu.eg
-
-
-Checkpoint 1 workload:
-
-Kerolos Sameh (202500408)
-- Entities: Patient, Doctor, Branch, Event
-- doctors/branches arrays
-- SimulationEngine
-
-Hassan Yehia (202500817)
-- DataStructures/LinkedQueue.h
-- events queue + emergency waiting
-
-Matthew Ayman (202500900)
-- DataStructures/PriorityQueue.h
-
-Mohamed Ayman (202400096)
-- DataStructures/LinkedList.h
-- FileManager (read input file)
-- Checkpoint(1)-Document
