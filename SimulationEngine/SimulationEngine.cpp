@@ -49,13 +49,23 @@ int SimulationEngine::allocateDoctorId() {
 }
 
 void SimulationEngine::run() {
-    while (!events.isEmpty() || hasActivePatients()) {
-        processEventsAtCurrentTime();
-        finishVisits();
-        autoEscalateWaitingPatients();
-        serveBranches();
-        currentTime++;
-    }
+    while (runOneTimeStep()) {}
+}
+
+bool SimulationEngine::runOneTimeStep() {
+    if (isComplete())
+        return false;
+
+    processEventsAtCurrentTime();
+    finishVisits();
+    autoEscalateWaitingPatients();
+    serveBranches();
+    currentTime++;
+    return true;
+}
+
+bool SimulationEngine::isComplete() {
+    return events.isEmpty() && !hasActivePatients();
 }
 
 void SimulationEngine::processEventsAtCurrentTime() {

@@ -2,5 +2,4 @@
   GuiApp.cpp
   SimulationEngine.cpp
   Generating Code...
-  LINK : C:\Users\11\Documents\GitHub\Clinic-Scheduler\x64\Debug\Clinic.exe not found or not built by the last incremental link; performing full link
   Clinic.vcxproj -> C:\Users\11\Documents\GitHub\Clinic-Scheduler\x64\Debug\Clinic.exe

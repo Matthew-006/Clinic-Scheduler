@@ -66,7 +66,16 @@ public:
         return front->item;
     }
 
-   
+    template <class Visitor>
+    void forEach(Visitor visit) {
+        Node* cur = front;
+        while (cur != 0) {
+            visit(cur->item);
+            cur = cur->next;
+        }
+    }
+
+
 };
 
 #endif

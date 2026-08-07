@@ -82,6 +82,15 @@ public:
         return head->item;
     }
 
+    template <class Visitor>
+    void forEach(Visitor visit) {
+        Node* cur = head;
+        while (cur != 0) {
+            visit(cur->item);
+            cur = cur->next;
+        }
+    }
+
     bool removeById(int id, T& val) {
         Node* prev = 0;
         Node* cur = head;

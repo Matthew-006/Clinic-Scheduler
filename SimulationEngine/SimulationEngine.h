@@ -41,6 +41,8 @@ public:
     int allocateDoctorId();
 
     void run();
+    bool runOneTimeStep();
+    bool isComplete();
 
 private:
     void processEventsAtCurrentTime();

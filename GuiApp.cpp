@@ -18,6 +18,8 @@ enum ControlId {
     ID_EVENTS,
     ID_IMPORT,
     ID_RUN,
+    ID_INTERACTIVE,
+    ID_NEXT,
     ID_SAVE,
     ID_CLEAR,
     ID_RESULTS,
@@ -35,6 +37,8 @@ struct GuiControls {
     HWND doctors;
     HWND events;
     HWND results;
+    HWND interactive;
+    HWND next;
     HWND status;
 };
 
@@ -46,6 +50,9 @@ HBRUSH windowBrush;
 HBRUSH editBrush;
 HBRUSH headerBrush;
 HBRUSH cardBrush;
+SimulationEngine* interactiveEngine = 0;
+FileManager interactiveFiles;
+char interactiveOutputPath[MAX_PATH] = "";
 
 HWND makeText(HWND parent, const char* text, int x, int y, int width, int height, int id = 0) {
     return CreateWindowA("STATIC", text, WS_CHILD | WS_VISIBLE, x, y, width, height,
@@ -65,6 +72,11 @@ HWND makeButton(HWND parent, const char* text, int x, int y, int width, int id) 
                          x, y, width, 34, parent, (HMENU)(INT_PTR)id, 0, 0);
 }
 
+HWND makeCheckBox(HWND parent, const char* text, int x, int y, int width, int id) {
+    return CreateWindowA("BUTTON", text, WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+                         x, y, width, 24, parent, (HMENU)(INT_PTR)id, 0, 0);
+}
+
 void setFont(HWND control, HFONT font) {
     SendMessageA(control, WM_SETFONT, (WPARAM)font, TRUE);
 }
@@ -75,6 +87,137 @@ void setStatus(const char* text) {
 
 void showError(HWND window, const char* text) {
     MessageBoxA(window, text, "Clinic Scheduler", MB_OK | MB_ICONERROR);
+}
+
+void appendText(char* output, int outputSize, const char* text) {
+    strcat_s(output, outputSize, text);
+}
+
+void appendWaitingQueue(char* output, int outputSize, const char* label,
+                        LinkedQueue<Patient*>& queue) {
+    char line[64];
+    sprintf_s(line, "%s", label);
+    appendText(output, outputSize, line);
+    bool hasPatients = false;
+    queue.forEach([&](Patient* p) {
+        sprintf_s(line, "%s%d", hasPatients ? " -> " : "", p->id);
+        appendText(output, outputSize, line);
+        hasPatients = true;
+    });
+    if (!hasPatients)
+        appendText(output, outputSize, "Empty");
+    appendText(output, outputSize, "\r\n");
+}
+
+void appendWaitingQueue(char* output, int outputSize, const char* label,
+                        PriorityQueue<Patient*>& queue) {
+    char line[64];
+    sprintf_s(line, "%s", label);
+    appendText(output, outputSize, line);
+    bool hasPatients = false;
+    queue.forEach([&](Patient* p) {
+        sprintf_s(line, "%s%d", hasPatients ? " -> " : "", p->id);
+        appendText(output, outputSize, line);
+        hasPatients = true;
+    });
+    if (!hasPatients)
+        appendText(output, outputSize, "Empty");
+    appendText(output, outputSize, "\r\n");
+}
+
+void showSnapshot(SimulationEngine& engine, int timeStep) {
+    char snapshot[32768] = "";
+    char line[256];
+    sprintf_s(line, "TIMESTEP %d\r\n\r\n", timeStep);
+    appendText(snapshot, sizeof(snapshot), line);
+
+    for (int i = 0; i < engine.numBranches; i++) {
+        Branch& b = engine.branches[i];
+        sprintf_s(line, "Branch %d\r\n", b.branchNum);
+        appendText(snapshot, sizeof(snapshot), line);
+
+        for (int d = 0; d < b.doctorCount; d++) {
+            Doctor& doctor = b.doctors[d];
+            if (doctor.currentPatient != 0)
+                sprintf_s(line, "  Doctor %d: Busy with patient %d until time %d\r\n",
+                          doctor.id, doctor.currentPatient->id, doctor.busyUntil);
+            else if (timeStep < doctor.shiftStart)
+                sprintf_s(line, "  Doctor %d: Shift not started yet\r\n", doctor.id);
+            else if (timeStep < doctor.breakUntil)
+                sprintf_s(line, "  Doctor %d: On break until time %d\r\n",
+                          doctor.id, doctor.breakUntil);
+            else
+                sprintf_s(line, "  Doctor %d: Free\r\n", doctor.id);
+            appendText(snapshot, sizeof(snapshot), line);
+        }
+
+        appendWaitingQueue(snapshot, sizeof(snapshot), "  Emergency Queue: ",
+                           b.emergencyWaiting);
+        appendWaitingQueue(snapshot, sizeof(snapshot), "  Regular Queue: ",
+                           b.regularWaiting);
+        appendText(snapshot, sizeof(snapshot), "  In-Visit Patients: ");
+        bool hasVisits = false;
+        for (int d = 0; d < b.doctorCount; d++) {
+            if (b.doctors[d].currentPatient != 0) {
+                sprintf_s(line, "%s%d", hasVisits ? ", " : "",
+                          b.doctors[d].currentPatient->id);
+                appendText(snapshot, sizeof(snapshot), line);
+                hasVisits = true;
+            }
+        }
+        if (!hasVisits)
+            appendText(snapshot, sizeof(snapshot), "None");
+        appendText(snapshot, sizeof(snapshot), "\r\n\r\n");
+    }
+
+    sprintf_s(line, "Done patients: %d\r\n", engine.doneList.getCount());
+    appendText(snapshot, sizeof(snapshot), line);
+    SetWindowTextA(controls.results, snapshot);
+}
+
+void finishInteractiveSimulation() {
+    if (interactiveEngine == 0)
+        return;
+
+    interactiveFiles.writeOutput(*interactiveEngine, interactiveOutputPath);
+    EnableWindow(controls.next, FALSE);
+    setStatus("Interactive simulation completed. The output file was produced.");
+}
+
+void runInteractiveTimeStep() {
+    if (interactiveEngine == 0)
+        return;
+
+    if (interactiveEngine->runOneTimeStep()) {
+        showSnapshot(*interactiveEngine, interactiveEngine->currentTime - 1);
+        if (interactiveEngine->isComplete())
+            finishInteractiveSimulation();
+        else
+            setStatus("Snapshot displayed. Select Next timestep to continue.");
+    }
+    else {
+        finishInteractiveSimulation();
+    }
+}
+
+bool startInteractiveSimulation(HWND window, const char* inputPath, const char* outputPath) {
+    if (interactiveEngine != 0) {
+        delete interactiveEngine;
+        interactiveEngine = 0;
+    }
+
+    interactiveEngine = new SimulationEngine;
+    if (!interactiveFiles.load(inputPath, *interactiveEngine)) {
+        delete interactiveEngine;
+        interactiveEngine = 0;
+        showError(window, "The input could not be read. Check every doctor and event row.");
+        return false;
+    }
+
+    strcpy_s(interactiveOutputPath, sizeof(interactiveOutputPath), outputPath);
+    EnableWindow(controls.next, TRUE);
+    runInteractiveTimeStep();
+    return true;
 }
 
 bool writeGuiInput(char* path) {
@@ -313,6 +456,10 @@ void saveOutput(HWND window) {
 }
 
 void clearForm() {
+    if (interactiveEngine != 0) {
+        delete interactiveEngine;
+        interactiveEngine = 0;
+    }
     SetWindowTextA(controls.branches, "");
     SetWindowTextA(controls.setup, "");
     SetWindowTextA(controls.wrapup, "");
@@ -322,6 +469,7 @@ void clearForm() {
     SetWindowTextA(controls.doctors, "");
     SetWindowTextA(controls.events, "");
     SetWindowTextA(controls.results, "");
+    EnableWindow(controls.next, FALSE);
     setStatus("Start a new clinic simulation or import an input file.");
 }
 
@@ -339,9 +487,13 @@ LRESULT CALLBACK windowProcedure(HWND window, UINT message, WPARAM wParam, LPARA
             strcat_s(outputPath, sizeof(outputPath), "clinic_scheduler_gui_output.txt");
             if (!writeGuiInput(inputPath))
                 showError(window, "Fill every setting, doctor row, and event row using the examples shown.");
+            else if (SendMessageA(controls.interactive, BM_GETCHECK, 0, 0) == BST_CHECKED)
+                startInteractiveSimulation(window, inputPath, outputPath);
             else
                 runSimulation(window, inputPath, outputPath);
         }
+        else if (id == ID_NEXT)
+            runInteractiveTimeStep();
         else if (id == ID_SAVE)
             saveOutput(window);
         else if (id == ID_CLEAR)
@@ -473,11 +625,15 @@ void createInterface(HWND window) {
     SendMessageA(controls.results, EM_SETREADONLY, TRUE, 0);
     setFont(controls.results, codeFont);
 
+    controls.interactive = makeCheckBox(window, "Interactive snapshots (step by step)", 24, 650, 290, ID_INTERACTIVE);
+    setFont(controls.interactive, bodyFont);
     HWND importButton = makeButton(window, "Load .txt file", 24, 680, 145, ID_IMPORT);
     HWND runButton = makeButton(window, "Calculate schedule", 179, 680, 175, ID_RUN);
     HWND saveButton = makeButton(window, "Export result", 364, 680, 145, ID_SAVE);
     HWND clearButton = makeButton(window, "New simulation", 519, 680, 130, ID_CLEAR);
-    setFont(importButton, bodyFont); setFont(runButton, bodyFont); setFont(saveButton, bodyFont); setFont(clearButton, bodyFont);
+    controls.next = makeButton(window, "Next timestep", 664, 680, 130, ID_NEXT);
+    EnableWindow(controls.next, FALSE);
+    setFont(importButton, bodyFont); setFont(runButton, bodyFont); setFont(saveButton, bodyFont); setFont(clearButton, bodyFont); setFont(controls.next, bodyFont);
 
     controls.status = makeText(window, "Start a new clinic simulation or import an input file.", 24, 730, 1150, 24, ID_STATUS);
     setFont(controls.status, bodyFont);
