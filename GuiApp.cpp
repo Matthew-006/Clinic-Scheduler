@@ -26,7 +26,8 @@ enum ControlId {
     ID_CLEAR,
     ID_RESULTS,
     ID_STATUS,
-    ID_HEADER
+    ID_HEADER,
+    ID_SUBHEADER
 };
 
 struct GuiControls {
@@ -555,8 +556,13 @@ LRESULT CALLBACK windowProcedure(HWND window, UINT message, WPARAM wParam, LPARA
             return (LRESULT)headerBrush;
         }
         SetTextColor(dc, RGB(226, 232, 240));
-        SetBkMode(dc, TRANSPARENT);
-        return (LRESULT)GetStockObject(HOLLOW_BRUSH);
+        int id = GetDlgCtrlID(control);
+        if (id == ID_SUBHEADER || id == ID_STATUS) {
+            SetBkColor(dc, RGB(20, 27, 35));
+            return (LRESULT)windowBrush;
+        }
+        SetBkColor(dc, RGB(27, 37, 48));
+        return (LRESULT)cardBrush;
     }
 
     if (message == WM_CTLCOLOREDIT) {
@@ -647,7 +653,7 @@ void createInterface(HWND window) {
         WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, 0, 0, 1240, 64,
         window, (HMENU)(INT_PTR)ID_HEADER, 0, 0);
     setFont(header, titleFont);
-    HWND subheader = makeText(window, "Build a clinic simulation, validate every detail, and review the schedule instantly.", 24, 69, 760, 24);
+    HWND subheader = makeText(window, "Build a clinic simulation, validate every detail, and review the schedule instantly.", 24, 69, 760, 24, ID_SUBHEADER);
     setFont(subheader, bodyFont);
 
     HWND settings = makeText(window, "1. Clinic settings", 24, 114, 260, 24);
