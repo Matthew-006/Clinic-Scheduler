@@ -1,0 +1,9 @@
+FT  ID  CT  WT  VT
+6   1   0   0   6
+10   2   1   5   4
+
+Patients: 2 [Emergency: 0, Regular: 2]
+Branches: 1
+Branch 1: Doctors: 1 [Senior: 0, Junior: 1]
+Avg Wait = 2.5, Avg Visit = 5.0
+Auto-escalated: 0
