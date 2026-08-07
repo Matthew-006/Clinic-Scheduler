@@ -551,34 +551,43 @@ LRESULT CALLBACK windowProcedure(HWND window, UINT message, WPARAM wParam, LPARA
         HDC dc = (HDC)wParam;
         if (GetDlgCtrlID(control) == ID_HEADER) {
             SetTextColor(dc, RGB(255, 255, 255));
-            SetBkColor(dc, RGB(30, 64, 175));
+            SetBkColor(dc, RGB(35, 78, 100));
             return (LRESULT)headerBrush;
         }
-        SetTextColor(dc, RGB(203, 213, 225));
-        SetBkColor(dc, RGB(15, 23, 42));
-        return (LRESULT)windowBrush;
+        SetTextColor(dc, RGB(226, 232, 240));
+        SetBkMode(dc, TRANSPARENT);
+        return (LRESULT)GetStockObject(HOLLOW_BRUSH);
     }
 
     if (message == WM_CTLCOLOREDIT) {
         HDC dc = (HDC)wParam;
         SetTextColor(dc, RGB(241, 245, 249));
-        SetBkColor(dc, RGB(30, 41, 59));
+        SetBkColor(dc, RGB(35, 46, 58));
         return (LRESULT)editBrush;
     }
 
     if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT* item = (DRAWITEMSTRUCT*)lParam;
-        HBRUSH buttonBrush = CreateSolidBrush(item->itemState & ODS_SELECTED ? RGB(30, 64, 175) : RGB(37, 99, 235));
-        HBRUSH borderBrush = CreateSolidBrush(RGB(96, 165, 250));
-        RoundRect(item->hDC, item->rcItem.left, item->rcItem.top, item->rcItem.right, item->rcItem.bottom, 8, 8);
-        FillRect(item->hDC, &item->rcItem, buttonBrush);
-        FrameRect(item->hDC, &item->rcItem, borderBrush);
+        bool primaryButton = item->CtlID == ID_RUN;
+        COLORREF fillColor = primaryButton ? RGB(52, 122, 132) : RGB(62, 76, 91);
+        if (item->itemState & ODS_SELECTED)
+            fillColor = primaryButton ? RGB(38, 93, 102) : RGB(45, 56, 69);
+        if (item->itemState & ODS_DISABLED)
+            fillColor = RGB(82, 96, 109);
+        HBRUSH buttonBrush = CreateSolidBrush(fillColor);
+        HBRUSH borderBrush = CreateSolidBrush(primaryButton ? RGB(134, 192, 196) : RGB(120, 140, 153));
+        HRGN buttonShape = CreateRoundRectRgn(item->rcItem.left, item->rcItem.top,
+                                               item->rcItem.right + 1, item->rcItem.bottom + 1,
+                                               10, 10);
+        FillRgn(item->hDC, buttonShape, buttonBrush);
+        FrameRgn(item->hDC, buttonShape, borderBrush, 1, 1);
         SetBkMode(item->hDC, TRANSPARENT);
         SetTextColor(item->hDC, RGB(255, 255, 255));
         SelectObject(item->hDC, bodyFont);
         char text[128];
         GetWindowTextA(item->hwndItem, text, sizeof(text));
         DrawTextA(item->hDC, text, -1, &item->rcItem, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+        DeleteObject(buttonShape);
         DeleteObject(buttonBrush);
         DeleteObject(borderBrush);
         return TRUE;
@@ -596,6 +605,11 @@ LRESULT CALLBACK windowProcedure(HWND window, UINT message, WPARAM wParam, LPARA
         FillRect(dc, &leftCard, cardBrush);
         FillRect(dc, &middleCard, cardBrush);
         FillRect(dc, &rightCard, cardBrush);
+        HBRUSH cardBorder = CreateSolidBrush(RGB(57, 71, 86));
+        FrameRect(dc, &leftCard, cardBorder);
+        FrameRect(dc, &middleCard, cardBorder);
+        FrameRect(dc, &rightCard, cardBorder);
+        DeleteObject(cardBorder);
         EndPaint(window, &paint);
         return 1;
     }
@@ -615,21 +629,23 @@ LRESULT CALLBACK windowProcedure(HWND window, UINT message, WPARAM wParam, LPARA
 }
 
 void createInterface(HWND window) {
-    titleFont = CreateFontA(25, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+    titleFont = CreateFontA(48, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
                             OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
                             DEFAULT_PITCH, "Segoe UI");
-    bodyFont = CreateFontA(16, 0, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+    bodyFont = CreateFontA(19, 0, 0, 0, FW_MEDIUM, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
                            OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
                            DEFAULT_PITCH, "Segoe UI");
-    codeFont = CreateFontA(15, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+    codeFont = CreateFontA(16, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
                            OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
                            FIXED_PITCH, "Consolas");
-    windowBrush = CreateSolidBrush(RGB(15, 23, 42));
-    editBrush = CreateSolidBrush(RGB(30, 41, 59));
-    headerBrush = CreateSolidBrush(RGB(30, 41, 59));
-    cardBrush = CreateSolidBrush(RGB(17, 24, 39));
+    windowBrush = CreateSolidBrush(RGB(20, 27, 35));
+    editBrush = CreateSolidBrush(RGB(35, 46, 58));
+    headerBrush = CreateSolidBrush(RGB(35, 78, 100));
+    cardBrush = CreateSolidBrush(RGB(27, 37, 48));
 
-    HWND header = makeText(window, "CLINIC SCHEDULER", 0, 0, 1240, 64, ID_HEADER);
+    HWND header = CreateWindowA("STATIC", "CLINIC SCHEDULER",
+        WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE, 0, 0, 1240, 64,
+        window, (HMENU)(INT_PTR)ID_HEADER, 0, 0);
     setFont(header, titleFont);
     HWND subheader = makeText(window, "Build a clinic simulation, validate every detail, and review the schedule instantly.", 24, 69, 760, 24);
     setFont(subheader, bodyFont);
@@ -679,7 +695,7 @@ void createInterface(HWND window) {
     SendMessageA(controls.results, EM_SETREADONLY, TRUE, 0);
     setFont(controls.results, codeFont);
 
-    controls.interactive = makeCheckBox(window, "Interactive snapshots (step by step)", 24, 650, 290, ID_INTERACTIVE);
+    controls.interactive = makeCheckBox(window, "Interactive snapshots (step by step)", 24, 620, 290, ID_INTERACTIVE);
     setFont(controls.interactive, bodyFont);
     HWND importButton = makeButton(window, "Load .txt file", 24, 680, 145, ID_IMPORT);
     HWND runButton = makeButton(window, "Calculate schedule", 179, 680, 175, ID_RUN);
