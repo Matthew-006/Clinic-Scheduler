@@ -26,17 +26,19 @@
     <ClCompile>
       <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="GuiApp.cpp" />
     <ClCompile Include="SimulationEngine\SimulationEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GuiApp.h" />
     <ClInclude Include="FileManager\FileManager.h" />
     <ClInclude Include="SimulationEngine\SimulationEngine.h" />
     <ClInclude Include="Scheduler\Scheduler.h" />
