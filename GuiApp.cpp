@@ -14,6 +14,8 @@ enum ControlId {
     ID_SENIOR,
     ID_JUNIOR,
     ID_AUTO,
+    ID_TRANSFER,
+    ID_DISTANCES,
     ID_DOCTORS,
     ID_EVENTS,
     ID_IMPORT,
@@ -40,6 +42,8 @@ struct GuiControls {
     HWND interactive;
     HWND next;
     HWND status;
+    HWND transferCheck;
+    HWND distances;
 };
 
 GuiControls controls;
@@ -87,6 +91,34 @@ void setStatus(const char* text) {
 
 void showError(HWND window, const char* text) {
     MessageBoxA(window, text, "Clinic Scheduler", MB_OK | MB_ICONERROR);
+}
+
+bool parseDistances(const char* text, int branches, char* outBuffer, size_t outSize) {
+    char copy[16384];
+    strcpy_s(copy, sizeof(copy), text);
+
+    int expected = branches * branches;
+    int count = 0;
+    char formatted[16384] = "";
+
+    char* context = 0;
+    char* token = strtok_s(copy, " \t\r\n", &context);
+    while (token != 0) {
+        int val = atoi(token);
+        char piece[32];
+        sprintf_s(piece, "%d ", val);
+        strcat_s(formatted, sizeof(formatted), piece);
+        count++;
+        if (count % branches == 0)
+            strcat_s(formatted, sizeof(formatted), "\n");
+        token = strtok_s(0, " \t\r\n", &context);
+    }
+
+    if (count != expected)
+        return false;
+
+    strcpy_s(outBuffer, outSize, formatted);
+    return true;
 }
 
 void appendText(char* output, int outputSize, const char* text) {
@@ -220,7 +252,8 @@ bool startInteractiveSimulation(HWND window, const char* inputPath, const char* 
     return true;
 }
 
-bool writeGuiInput(char* path) {
+bool writeGuiInput(char* path, bool& transferOut) {
+    transferOut = (SendMessageA(controls.transferCheck, BM_GETCHECK, 0, 0) == BST_CHECKED);
     char value[64];
     GetWindowTextA(controls.branches, value, sizeof(value));
     int branches = atoi(value);
@@ -316,6 +349,18 @@ bool writeGuiInput(char* path) {
     fprintf(file, "%d\n", autoEscalate);
     fprintf(file, "%d\n", eventCount);
     fprintf(file, "%s", formattedEvents);
+
+    if (transferOut) {
+        char distText[16384];
+        GetWindowTextA(controls.distances, distText, sizeof(distText));
+        char formattedDist[16384];
+        if (!parseDistances(distText, branches, formattedDist, sizeof(formattedDist))) {
+            fclose(file);
+            return false;
+        }
+        fprintf(file, "%s", formattedDist);
+    }
+
     fclose(file);
     return true;
 }
@@ -338,10 +383,10 @@ void readOutput(const char* path) {
     SetWindowTextA(controls.results, output);
 }
 
-bool runSimulation(HWND window, const char* inputPath, const char* outputPath) {
+bool runSimulation(HWND window, const char* inputPath, const char* outputPath, bool transferOn) {
     SimulationEngine engine;
     FileManager files;
-    if (!files.load(inputPath, engine)) {
+    if (!files.load(inputPath, engine, transferOn)) {
         showError(window, "The input could not be read. Check every doctor and event row.");
         return false;
     }
@@ -448,11 +493,12 @@ void saveOutput(HWND window) {
     char inputPath[MAX_PATH];
     GetTempPathA(MAX_PATH, inputPath);
     strcat_s(inputPath, sizeof(inputPath), "clinic_scheduler_gui_input.txt");
-    if (!writeGuiInput(inputPath)) {
+    bool transferOn;
+    if (!writeGuiInput(inputPath, transferOn)) {
         showError(window, "Fill every setting, doctor row, and event row using the examples shown.");
         return;
     }
-    runSimulation(window, inputPath, outputPath);
+    runSimulation(window, inputPath, outputPath, transferOn);
 }
 
 void clearForm() {
@@ -485,12 +531,11 @@ LRESULT CALLBACK windowProcedure(HWND window, UINT message, WPARAM wParam, LPARA
             GetTempPathA(MAX_PATH, outputPath);
             strcat_s(inputPath, sizeof(inputPath), "clinic_scheduler_gui_input.txt");
             strcat_s(outputPath, sizeof(outputPath), "clinic_scheduler_gui_output.txt");
-            if (!writeGuiInput(inputPath))
+            bool transferOn;
+            if (!writeGuiInput(inputPath, transferOn))
                 showError(window, "Fill every setting, doctor row, and event row using the examples shown.");
-            else if (SendMessageA(controls.interactive, BM_GETCHECK, 0, 0) == BST_CHECKED)
-                startInteractiveSimulation(window, inputPath, outputPath);
             else
-                runSimulation(window, inputPath, outputPath);
+                runSimulation(window, inputPath, outputPath, transferOn);
         }
         else if (id == ID_NEXT)
             runInteractiveTimeStep();
@@ -602,6 +647,15 @@ void createInterface(HWND window) {
         *fields[i] = makeEdit(window, 205, 174 + i * 54, 76, 30, ids[i]);
         setFont(*fields[i], bodyFont);
     }
+
+    controls.transferCheck = CreateWindowA("BUTTON", "Enable branch transfer (Bonus)",
+        WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 24, 470, 260, 22, window, (HMENU)(INT_PTR)ID_TRANSFER, 0, 0);
+    setFont(controls.transferCheck, bodyFont);
+
+    HWND distLabel = makeText(window, "Branch distances (rows, space-separated)", 24, 498, 270, 22);
+    setFont(distLabel, bodyFont);
+    controls.distances = makeEdit(window, 24, 522, 260, 80, ID_DISTANCES, true);
+    setFont(controls.distances, codeFont);
 
     HWND doctorTitle = makeText(window, "2. Doctors", 330, 114, 180, 24);
     HWND doctorHelp = makeText(window, "Enter: Branch | Role | Shift starts | Patients before break | Break length", 330, 142, 455, 22);
