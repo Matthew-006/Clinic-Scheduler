@@ -59,7 +59,7 @@ public:
 
             if (d.currentPatient != 0 && currentTime >= d.busyUntil) {
                 Patient* p = d.currentPatient;
-                p->finishTime = d.busyUntil;
+                p->finishTime = p->checkInTime + p->waitingTime + p->visitTime;
                 p->status = 4;
                 doneList.insertEnd(p);
                 d.currentPatient = 0;
