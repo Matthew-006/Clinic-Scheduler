@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 ﻿  GuiApp.cpp
   Clinic.vcxproj -> D:\UST\First year\Sem 3 Summer\Data Structure\Project\x64\Debug\Clinic.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.
+=======
+﻿  SimulationEngine.cpp
+  main.cpp
+  Generating Code...
+  Clinic.vcxproj -> C:\Users\Maydr\Downloads\summer 2026\DSA\DSA-Project\Clinic-Scheduler\x64\Debug\Clinic.exe
+>>>>>>> 6fdecb0c75e01ef449fa696d6311635b30694bcc
