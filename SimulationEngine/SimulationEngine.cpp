@@ -12,6 +12,7 @@ SimulationEngine::SimulationEngine() {
     totalEmergency = 0;
     totalRegular = 0;
     totalAutoEscalated = 0;
+    transferMode = false;
 }
 
 SimulationEngine::~SimulationEngine() {
@@ -60,6 +61,7 @@ bool SimulationEngine::runOneTimeStep() {
     finishVisits();
     autoEscalateWaitingPatients();
     serveBranches();
+    transferPatients();
     currentTime++;
     return true;
 }
@@ -152,6 +154,79 @@ void SimulationEngine::autoEscalateWaitingPatients() {
             else {
                 b.regularWaiting.insert(p);
             }
+        }
+    }
+}
+
+void SimulationEngine::transferPatients() {
+    if (!transferMode)
+        return;
+
+    const int TRANSFER_LIMIT = 5;
+
+    for (int i = 0; i < numBranches; i++) {
+        Branch& b = branches[i];
+
+        int regularCount = b.regularWaiting.size();
+        for (int checked = 0; checked < regularCount; checked++) {
+            Patient* p = b.regularWaiting.extractBest();
+            if (p == 0)
+                break;
+
+            if (currentTime - p->checkInTime > TRANSFER_LIMIT) {
+                int bestBranch = -1;
+                int bestDistance = 999999;
+                for (int j = 0; j < numBranches; j++) {
+                    if (j == i)
+                        continue;
+
+                    Doctor* d = scheduler.findRegularDoctor(branches[j], currentTime);
+                    int distance = distTable.getDistance(i, j);
+                    if (d != 0 && distance < bestDistance) {
+                        bestDistance = distance;
+                        bestBranch = j;
+                    }
+                }
+
+                if (bestBranch != -1) {
+                    p->transferDelay += bestDistance;
+                    p->branch = branches[bestBranch].branchNum;
+                    branches[bestBranch].regularWaiting.insert(p);
+                    continue;
+                }
+            }
+
+            b.regularWaiting.insert(p);
+        }
+
+        int emergencyCount = b.emergencyWaiting.size();
+        for (int checked = 0; checked < emergencyCount; checked++) {
+            Patient* p = b.emergencyWaiting.dequeue();
+
+            if (currentTime - p->checkInTime > TRANSFER_LIMIT) {
+                int bestBranch = -1;
+                int bestDistance = 999999;
+                for (int j = 0; j < numBranches; j++) {
+                    if (j == i)
+                        continue;
+
+                    Doctor* d = scheduler.findEmergencyDoctor(branches[j], currentTime);
+                    int distance = distTable.getDistance(i, j);
+                    if (d != 0 && distance < bestDistance) {
+                        bestDistance = distance;
+                        bestBranch = j;
+                    }
+                }
+
+                if (bestBranch != -1) {
+                    p->transferDelay += bestDistance;
+                    p->branch = branches[bestBranch].branchNum;
+                    branches[bestBranch].emergencyWaiting.insertByCheckInTime(p);
+                    continue;
+                }
+            }
+
+            b.emergencyWaiting.insertByCheckInTime(p);
         }
     }
 }

@@ -8,6 +8,7 @@
 #include "../DataStructures/LinkedQueue.h"
 #include "../DataStructures/LinkedList.h"
 #include "../Scheduler/Scheduler.h"
+#include "../Bonus 3/DistanceTable.h"
 
 const int MAX_BRANCHES = 20;
 
@@ -19,6 +20,8 @@ public:
     int seniorPerTest;
     int juniorPerTest;
     int autoE;
+    bool transferMode;
+    DistanceTable distTable;
 
     Branch branches[MAX_BRANCHES];
     LinkedQueue<Event*> events;
@@ -51,6 +54,7 @@ private:
     void processUrgent(Event* e);
     void processLeave(Event* e);
     void autoEscalateWaitingPatients();
+    void transferPatients();
     void finishVisits();
     void serveBranches();
     bool hasActivePatients();

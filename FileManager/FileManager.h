@@ -17,7 +17,7 @@ using namespace std;
 class FileManager
 {
 public:
-    bool load(string fileName, SimulationEngine& engine)
+    bool load(string fileName, SimulationEngine& engine, bool transfer = false)
     {
         ifstream file(fileName);
         if (!file)
@@ -84,6 +84,19 @@ public:
                 Patient* p= engine.allPatients.findById(ID);
                 Event* e =new Event('U', TS, ID, p);
                 engine.events.enqueue(e);
+            }
+        }
+
+        engine.transferMode = transfer;
+        if (transfer) {
+            engine.distTable.setSize(engine.numBranches);
+            for (int i = 0; i < engine.numBranches; i++) {
+                for (int j = 0; j < engine.numBranches; j++) {
+                    int distance;
+                    if (!(file >> distance))
+                        return false;
+                    engine.distTable.setDistance(i, j, distance);
+                }
             }
         }
 

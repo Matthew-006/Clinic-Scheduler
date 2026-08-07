@@ -50,6 +50,7 @@
     <ClInclude Include="DataStructures\EmergencyQueue.h" />
     <ClInclude Include="DataStructures\PriorityQueue.h" />
     <ClInclude Include="DataStructures\LinkedList.h" />
+    <ClInclude Include="Bonus 3\DistanceTable.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

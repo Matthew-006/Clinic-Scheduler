@@ -10,6 +10,7 @@ public:
     int branch;
     int numTests;
     int waitingTime;
+    int transferDelay;
     int visitTime;
     int finishTime;
     int status;
@@ -22,6 +23,7 @@ public:
         branch = 0;
         numTests = 0;
         waitingTime = 0;
+        transferDelay = 0;
         visitTime = 0;
         finishTime = 0;
         status = 0;
@@ -35,6 +37,7 @@ public:
         branch = br;
         numTests = tests;
         waitingTime = 0;
+        transferDelay = 0;
         visitTime = 0;
         finishTime = 0;
         status = 0;

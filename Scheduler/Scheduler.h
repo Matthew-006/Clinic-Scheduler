@@ -89,7 +89,7 @@ public:
             return;
 
         const int perTest = (d->spec == 'S') ? seniorPerTest : juniorPerTest;
-        p->waitingTime = currentTime - p->checkInTime;
+        p->waitingTime = currentTime - p->checkInTime + p->transferDelay;
         p->visitTime = setupDuration + (p->numTests * perTest) + wrapUpDuration;
         if (p->visitTime < 1)
             p->visitTime = 1;
