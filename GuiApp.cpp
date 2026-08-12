@@ -233,14 +233,15 @@ void runInteractiveTimeStep() {
     }
 }
 
-bool startInteractiveSimulation(HWND window, const char* inputPath, const char* outputPath) {
+bool startInteractiveSimulation(HWND window, const char* inputPath, const char* outputPath,
+                                bool transferOn) {
     if (interactiveEngine != 0) {
         delete interactiveEngine;
         interactiveEngine = 0;
     }
 
     interactiveEngine = new SimulationEngine;
-    if (!interactiveFiles.load(inputPath, *interactiveEngine)) {
+    if (!interactiveFiles.load(inputPath, *interactiveEngine, transferOn)) {
         delete interactiveEngine;
         interactiveEngine = 0;
         showError(window, "The input could not be read. Check every doctor and event row.");
@@ -535,6 +536,8 @@ LRESULT CALLBACK windowProcedure(HWND window, UINT message, WPARAM wParam, LPARA
             bool transferOn;
             if (!writeGuiInput(inputPath, transferOn))
                 showError(window, "Fill every setting, doctor row, and event row using the examples shown.");
+            else if (SendMessageA(controls.interactive, BM_GETCHECK, 0, 0) == BST_CHECKED)
+                startInteractiveSimulation(window, inputPath, outputPath, transferOn);
             else
                 runSimulation(window, inputPath, outputPath, transferOn);
         }
